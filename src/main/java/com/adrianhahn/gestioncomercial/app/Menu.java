@@ -4,7 +4,9 @@ package com.adrianhahn.gestioncomercial.app;
 import com.adrianhahn.gestioncomercial.model.Rol;
 import com.adrianhahn.gestioncomercial.model.Usuario;
 import com.adrianhahn.gestioncomercial.service.ClienteService;
+import com.adrianhahn.gestioncomercial.service.ProductoService;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class Menu {
@@ -12,10 +14,12 @@ public class Menu {
     private final Usuario usuario;
     private final Scanner scanner;
     private final ClienteService clienteService;
+    private final ProductoService productoService;
 
     public Menu(Usuario usuario){
         this.usuario = usuario;
         this.clienteService = new ClienteService();
+        this.productoService = new ProductoService();
         this.scanner = new Scanner(System.in);
     }
 
@@ -44,7 +48,7 @@ public class Menu {
 
             switch(opcion){
                 case 1 -> menuClientes();
-                case 2 -> System.out.println("Módulo Productos (pendiente)");
+                case 2 -> menuProducto();
                 case 3 -> System.out.println("Módulo Ventas (pendiente)");
                 case 0 -> System.out.println("Saliendo....");
                 default -> System.out.println("Opcion no valida");
@@ -79,7 +83,7 @@ public class Menu {
             System.out.println("\n=== GESTIÓN CLIENTES ===");
             System.out.println("1 - Crear Cliente");
             System.out.println("2 - Listar Clientes");
-            System.out.println("3 - Actuaño Cliente");
+            System.out.println("3 - Actualizar Cliente");
             System.out.println("4 - Eliminar Cliente");
             System.out.println("0 - Volver");
 
@@ -96,6 +100,8 @@ public class Menu {
             }
         }while (opcion != 0);
     }
+
+
 
     private void createCliente() {
 
@@ -175,5 +181,111 @@ public class Menu {
         Integer idCliente = Integer.parseInt(scanner.nextLine());
 
         clienteService.deleteCliente(idCliente);
+    }
+
+
+    private void menuProducto(){
+
+        int opcion;
+
+        do {
+            System.out.println("\n=== GESTIÓN PRODUCTO ===");
+            System.out.println("1 - Crear Producto");
+            System.out.println("2 - Listar Productos");
+            System.out.println("3 - Actualizar Producto");
+            System.out.println("4 - Eliminar Producto");
+            System.out.println("0 - Volver");
+
+            System.out.println("Seleccione una opcion: ");
+            opcion = Integer.parseInt(scanner.nextLine());
+
+            switch(opcion){
+                case 1 -> createProducto();
+                case 2 -> listProductos();
+                case 3 -> updateProducto();
+                case 4 -> deleteProducto();
+                case 0 -> System.out.println("Volviendo....");
+                default -> System.out.println("Opcion no valida");
+            }
+        }while (opcion != 0);
+    }
+
+    private void createProducto() {
+
+        System.out.println("Codigo: ");
+        String codigo = scanner.nextLine();
+
+        System.out.println("Nombre: ");
+        String nombre = scanner.nextLine();
+
+        System.out.println("Descripcion: ");
+        String descipcion = scanner.nextLine();
+
+        System.out.println("Precio: ");
+        BigDecimal precio = new BigDecimal(scanner.nextLine());
+
+        System.out.println("stock: ");
+        Integer stock = Integer.parseInt(scanner.nextLine());
+
+       productoService.createProducto(codigo,nombre,descipcion,precio,stock,true);
+    }
+
+    private void listProductos(){
+        var productos = productoService.listProductos();
+
+        if(productos.isEmpty()){
+            System.out.println("No hay productos registrados");
+            return;
+        }
+
+        for (var producto : productos){
+
+            System.out.println("-----------------------------------------");
+            System.out.println("ID: " + producto.getIdProducto());
+            System.out.println("Nombre: " + producto.getNombre());
+            System.out.println("Descripcion: " + producto.getDescripcion());
+            System.out.println("Precio: " + producto.getPrecio());
+            System.out.println("Stock: " + producto.getStock());
+            System.out.println("Activo: " + producto.getActivo());
+        }
+    }
+
+    private void updateProducto(){
+
+        System.out.print("ID del producto a actualizar: ");
+        Integer idProducto = Integer.parseInt(scanner.nextLine());
+
+        var productoOptional = productoService.findById(idProducto);
+
+        if(productoOptional.isEmpty()){
+            System.out.println("El producto no existe");
+            return;
+        }
+
+        var producto = productoOptional.get();
+
+        System.out.print("Codigo: ");
+        producto.setCodigo(scanner.nextLine());
+
+        System.out.print("Nombre: ");
+        producto.setNombre(scanner.nextLine());
+
+        System.out.print("Decripcion: ");
+        producto.setDescripcion(scanner.nextLine());
+
+        System.out.print("Precio: ");
+        producto.setPrecio(new BigDecimal(scanner.nextLine()));
+
+        System.out.print("Stock: ");
+        producto.setStock(Integer.parseInt(scanner.nextLine()));
+
+        productoService.updateProducto(producto);
+    }
+
+    private void deleteProducto(){
+        System.out.print("ID del Producto a eliminar: ");
+        Integer idProducto = Integer.parseInt(scanner.nextLine());
+
+        productoService.deleteProducto(idProducto);
     }
 }
