@@ -29,6 +29,9 @@ public class Main {
         if (usuario.isPresent()) {
             System.out.println("Login exitoso ");
             System.out.println("Bienvenido " + usuario.get().getUsername());
+
+            Menu menu = new Menu(usuario.get());
+            menu.iniciar();
         }else {
             System.out.println("Credenciales incorrectos");
         }
@@ -36,4 +39,5 @@ public class Main {
         scanner.close();
         // Siempre cerrar el scanner, no seas trolooooooo
     }
+
 }
